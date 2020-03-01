@@ -22,7 +22,7 @@ class Board extends React.Component {
       let children = [];
       for (let j = 0; j < 7; j++) {
         children.push(
-          <span key={i * 7 + j}>{this.renderSquare(j + i * 7)}</span>
+          <span key={i * 9 + j + 10}>{this.renderSquare(j + i * 9 + 10)}</span>
         );
       }
       table.push(
@@ -47,19 +47,19 @@ class Game extends React.Component {
     this.state = {
       history: [
         {
-          squares: this.createArray(6, 42)
+          squares: this.createArray(16, 64)
         }
       ],
       stepNumber: 0,
-      PlayerLocation: 42,
-      GoalLocation: 6,
+      PlayerLocation: 64,
+      GoalLocation: 16,
       xIsNext: true
     };
   }
 
   createArray(PlayerLoc, GoalLoc) {
     var arr = [];
-    for (let i = 0; i < 64; i++) {
+    for (let i = 0; i < 82; i++) {
       if (i === PlayerLoc) {
         arr[i] = "G";
         continue;
@@ -68,6 +68,25 @@ class Game extends React.Component {
         arr[i] = "P";
         continue;
       }
+      if (i < 10 || i > 70 || i % 9 === 0) {
+        arr[i] = "";
+        continue;
+      }
+
+      if (
+        i === 8 ||
+        i === 17 ||
+        i === 26 ||
+        i === 35 ||
+        i === 44 ||
+        i === 53 ||
+        i === 62 ||
+        i === 71
+      ) {
+        arr[i] = "";
+        continue;
+      }
+
       arr[i] = null;
     }
     this.createObstacles(3, arr, PlayerLoc, GoalLoc);
@@ -82,22 +101,19 @@ class Game extends React.Component {
       if (
         location === GoalLoc ||
         location === PlayerLoc ||
-        arr[location] === "X"
+        arr[location] === "X" ||
+        arr[location] === ""
       ) {
         i--;
         continue;
       }
+
       arr[location] = "X";
     }
   }
 
   handleKeyDown(event) {
-    const history = this.state.history.slice(
-      0,
-      this.state.stepNumber + 1,
-      this.state.PlayerLocation + 5,
-      this.state.GoalLocation + 5
-    );
+    const history = this.state.history.slice(0, this.state.stepNumber + 1);
     //console.log(history.length);
     const current = history[history.length - 1];
     console.log(this.state.PlayerLocation);
@@ -105,8 +121,10 @@ class Game extends React.Component {
     let Distance = 0;
     if (event.keyCode === 39) {
       console.log("Right Key");
-
-      Distance = this.movePlayer(6, "Right", squares);
+      for (let i = 0; i < 82; i++) {
+        squares[i] = i;
+      }
+      // Distance = this.movePlayer(6, "Right", squares);
     }
     if (event.keyCode === 37) {
       console.log("Left key");
@@ -140,18 +158,22 @@ class Game extends React.Component {
 
   movePlayer(ShiftFactor, Direction, squares) {
     let Dist = 0;
+    let Moved = false;
     let currPos = this.state.PlayerLocation;
     console.log(currPos);
     let blocked = false;
     if (Direction === "Right") {
       for (let i = currPos; i < currPos + 6; i++) {
-        if (squares[i] === "X") {
-          squares[i - 1] = "P";
+        if (squares[i] === "X" || i > 48) {
           squares[currPos] = null;
+          squares[i - 1] = "P";
           blocked = true;
-          Dist++;
           break;
         }
+        if (Moved === true) {
+          Dist++;
+        }
+        Moved = true;
       }
       if (blocked === false) {
         squares[currPos + 6] = "P";
@@ -166,9 +188,13 @@ class Game extends React.Component {
           squares[i + 7] = "P";
           squares[currPos] = null;
           blocked = true;
-          Dist -= 7;
+          if (Moved === true) {
+            Dist -= 6;
+          }
           break;
         }
+        Dist -= 7;
+        Moved = true;
       }
       if (blocked === false) {
         squares[currPos - 42] = "P";
@@ -178,6 +204,7 @@ class Game extends React.Component {
     }
 
     Dist = currPos + Dist;
+    console.log("Location: " + Dist);
     return Dist;
   }
 
@@ -188,7 +215,7 @@ class Game extends React.Component {
     });
   }
   render() {
-    //console.log(this.state.PlayerLocation);
+    console.log(this.state.PlayerLocation);
 
     const history = this.state.history;
     console.log(this.state.stepNumber);
