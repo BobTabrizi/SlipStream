@@ -121,14 +121,16 @@ class Game extends React.Component {
     let Distance = 0;
     if (event.keyCode === 39) {
       console.log("Right Key");
-      for (let i = 0; i < 82; i++) {
+      /*
+       for (let i = 0; i < 82; i++) {
         squares[i] = i;
-      }
-      // Distance = this.movePlayer(6, "Right", squares);
+       }
+      */
+      Distance = this.movePlayer(6, "Horiz", squares);
     }
     if (event.keyCode === 37) {
       console.log("Left key");
-      Distance = this.movePlayer(-6, "Left", squares);
+      Distance = this.movePlayer(-6, "Horiz", squares);
     }
     if (event.keyCode === 38) {
       console.log("Up Key");
@@ -136,7 +138,7 @@ class Game extends React.Component {
     }
     if (event.keyCode === 40) {
       console.log("Down Key");
-      Distance = this.movePlayer(42, squares);
+      //  Distance = this.movePlayer(42, squares);
     }
 
     //if (calculateWinner(squares) || squares[i]) {
@@ -159,47 +161,52 @@ class Game extends React.Component {
   movePlayer(ShiftFactor, Direction, squares) {
     let Dist = 0;
     let Moved = false;
-    let currPos = this.state.PlayerLocation;
-    console.log(currPos);
     let blocked = false;
-    if (Direction === "Right") {
-      for (let i = currPos; i < currPos + 6; i++) {
-        if (squares[i] === "X" || i > 48) {
+    let currPos = this.state.PlayerLocation;
+    let ShiftSign = 1;
+    if (ShiftFactor < 0) {
+      ShiftSign = -1;
+    }
+    console.log(currPos);
+    if (Direction === "Horiz") {
+      for (let i = currPos; i < currPos + ShiftFactor; ) {
+        if (squares[i] === "X" || i > 70) {
           squares[currPos] = null;
-          squares[i - 1] = "P";
+          squares[i - ShiftSign * -1] = "P";
           blocked = true;
+          i++;
           break;
         }
         if (Moved === true) {
           Dist++;
         }
         Moved = true;
+        i = i + ShiftSign;
       }
       if (blocked === false) {
-        squares[currPos + 6] = "P";
+        squares[currPos + ShiftFactor] = "P";
         squares[currPos] = null;
-        Dist = Math.abs(6);
+        Dist = ShiftFactor;
       }
     }
 
     if (Direction === "Up") {
-      for (let i = currPos; i > 0; i -= 7) {
+      for (let i = currPos; i > 0; i -= 9) {
         if (squares[i] === "X") {
-          squares[i + 7] = "P";
+          squares[i + 9] = "P";
           squares[currPos] = null;
           blocked = true;
-          if (Moved === true) {
-            Dist -= 6;
-          }
           break;
         }
-        Dist -= 7;
+        if (Moved === true) {
+          Dist -= 9;
+        }
         Moved = true;
       }
       if (blocked === false) {
-        squares[currPos - 42] = "P";
+        squares[currPos - 54] = "P";
         squares[currPos] = null;
-        Dist = -42;
+        Dist = -54;
       }
     }
 
